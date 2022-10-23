@@ -1,26 +1,17 @@
-html,
-body {
-  padding: 0;
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
-    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-a {
-  color: inherit;
-  text-decoration: none;
-}
 
-* {
-  box-sizing: border-box;
-}
+@layer components {
+    .side-nav{
+        @apply cursor-pointer;
+    }
+    .side-nav:hover {
+        @apply text-blue-900 bg-blue-500 bg-opacity-20 border-blue-500;
+    }
+    .side-nav-active{
+        @apply text-blue-900 bg-blue-900 bg-opacity-10 border-blue-900 !important;
+    }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
-  body {
-    color: white;
-    background: black;
-  }
 }
