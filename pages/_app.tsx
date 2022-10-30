@@ -1,9 +1,69 @@
 import "../styles/globals.css";
 import type { AppProps } from "next/app";
 import Link from "next/link";
+import { useRouter } from "next/router";
+import { MouseEvent, useEffect, useState } from "react";
+import { NextPageContext, NextComponentType } from "next/dist/shared/lib/utils";
+import { AuthGuard } from "../components/auth_guard";
 
-function MyApp({ Component, pageProps }: AppProps) {
-  console.log("app render");
+export type CustomComponent = NextComponentType<NextPageContext, any, any> & {
+  requireAuth?: boolean;
+  isAuthPage?: boolean;
+};
+
+const MyApp = (appProps: AppProps) => {
+  const {
+    Component,
+    pageProps,
+  }: { Component: CustomComponent; pageProps: any } = appProps;
+  const [user, setUser] = useState("");
+  const router = useRouter();
+  console.log("My App", user, router);
+  useEffect(() => {
+    setUser(() => {
+      console.log("Set User", localStorage.getItem("user") || "");
+      return localStorage.getItem("user") || "";
+    });
+    console.log("useEffect My APP");
+  }, [user]);
+
+  /*if (router.route === "/login" && user === "") {
+    router.push("/");
+  }*/
+
+  const logout = (e: MouseEvent<HTMLAnchorElement>) => {
+    console.log(e, localStorage);
+    localStorage.removeItem("user");
+    setUser("");
+    router.push("/");
+  };
+
+  const login = (login_data: any) => {
+    const data = JSON.stringify(login_data);
+    localStorage.setItem("user", data);
+    setUser(data);
+    router.push("/");
+  };
+
+  const body_component = () => {
+    if (Component.requireAuth) {
+      return (
+        <AuthGuard user={user}>
+          <Component {...pageProps} />
+        </AuthGuard>
+      );
+    }
+
+    if (Component.isAuthPage) {
+      if (user) {
+        router.push("/");
+        return;
+      }
+      return <Component {...pageProps} onSubmit={login} />;
+    }
+    return <Component {...pageProps} />;
+  };
+
   return (
     <>
       <nav className="bg-blue-200 fixed w-full z-10">
@@ -114,33 +174,33 @@ function MyApp({ Component, pageProps }: AppProps) {
                   />
                 </svg>
               </button>
-
-              <div className="relative ml-3">
-                <div>
-                  <button
-                    type="button"
-                    className="flex rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-1 focus:ring-black focus:ring-offset-black"
-                    id="user-menu-button"
-                    aria-expanded="false"
-                    aria-haspopup="true"
-                  >
-                    <span className="sr-only">Open user menu</span>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="currentColor"
-                      className="bi bi-person-circle h-7 w-7 text-white"
-                      viewBox="0 0 16 16"
+              {user ? (
+                <div className="relative ml-3">
+                  <div>
+                    <button
+                      type="button"
+                      className="flex rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-1 focus:ring-black focus:ring-offset-black"
+                      id="user-menu-button"
+                      aria-expanded="false"
+                      aria-haspopup="true"
                     >
-                      <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
-                      <path
-                        fillRule="evenodd"
-                        d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"
-                      />
-                    </svg>
-                  </button>
-                </div>
+                      <span className="sr-only">Open user menu</span>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="currentColor"
+                        className="bi bi-person-circle h-7 w-7 text-white"
+                        viewBox="0 0 16 16"
+                      >
+                        <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
+                        <path
+                          fillRule="evenodd"
+                          d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"
+                        />
+                      </svg>
+                    </button>
+                  </div>
 
-                {/*<div
+                  {/*<div
                               className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
                               role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button">
                               <a href="#" className="block px-4 py-2 text-sm text-gray-700" role="menuitem"
@@ -150,7 +210,8 @@ function MyApp({ Component, pageProps }: AppProps) {
                               <a href="#" className="block px-4 py-2 text-sm text-gray-700" role="menuitem"
                                   id="user-menu-item-2">Sign out</a>
                           </div>*/}
-              </div>
+                </div>
+              ) : null}
             </div>
           </div>
         </div>
@@ -209,7 +270,12 @@ function MyApp({ Component, pageProps }: AppProps) {
               </li>*/}
               <li className="pt-5">
                 <Link href="/">
-                  <a className="flex flex-row items-center h-12 border-l-4 side-nav">
+                  <a
+                    className={
+                      "flex flex-row items-center h-12 border-l-4 side-nav " +
+                      (router.route == "/" ? "side-nav-active" : "")
+                    }
+                  >
                     <span className="ml-5">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -231,7 +297,10 @@ function MyApp({ Component, pageProps }: AppProps) {
                 <Link href="/pokemon-ssg">
                   <a
                     href="#"
-                    className="flex flex-row items-center h-12 border-l-4 side-nav"
+                    className={
+                      "flex flex-row items-center h-12 border-l-4 side-nav " +
+                      (router.route == "/pokemon-ssg" ? "side-nav-active" : "")
+                    }
                   >
                     <span className="ml-5">
                       <svg
@@ -252,7 +321,12 @@ function MyApp({ Component, pageProps }: AppProps) {
               <li>
                 <a
                   href="#"
-                  className="flex flex-row items-center h-12 border-l-4 side-nav side-nav-active"
+                  className={
+                    "flex flex-row items-center h-12 border-l-4 side-nav " +
+                    (["/profile", "/login"].indexOf(router.route) > -1
+                      ? "side-nav-active"
+                      : "")
+                  }
                 >
                   <span className="ml-5">
                     <svg
@@ -286,27 +360,40 @@ function MyApp({ Component, pageProps }: AppProps) {
                   </div>
                 </a>
                 <ul className="flex flex-col bg-blue-300 bg-opacity-30">
-                  <li>
-                    <Link href="/profile">
-                      <a className="flex h-9 items-center cursor-pointer hover:bg-blue-300 hover:border-black">
-                        <span className="ml-7 text-sm">Profile</span>
-                      </a>
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/login">
-                      <a className="flex h-9 items-center cursor-pointer hover:bg-blue-300 hover:border-black">
-                        <span className="ml-7 text-sm">Login</span>
-                      </a>
-                    </Link>
-                  </li>
+                  {user ? (
+                    <>
+                      <li>
+                        <Link href="/profile">
+                          <a className="flex h-9 items-center cursor-pointer hover:bg-blue-300 hover:border-black">
+                            <span className="ml-7 text-sm">Profile</span>
+                          </a>
+                        </Link>
+                      </li>
+                      <li>
+                        <a
+                          className="flex h-9 items-center cursor-pointer hover:bg-blue-300 hover:border-black"
+                          onClick={logout}
+                        >
+                          <span className="ml-7 text-sm">Logout</span>
+                        </a>
+                      </li>
+                    </>
+                  ) : (
+                    <li>
+                      <Link href="/login">
+                        <a className="flex h-9 items-center cursor-pointer hover:bg-blue-300 hover:border-black">
+                          <span className="ml-7 text-sm">Login</span>
+                        </a>
+                      </Link>
+                    </li>
+                  )}
                 </ul>
               </li>
             </ul>
           </div>
           <div className="lg:ml-48 mt-10 h-full w-full">
             <div className="pt-2 px-1 sm:px-3 bg-gray-50">
-              <Component {...pageProps} />
+              {body_component()}
             </div>
           </div>
         </div>
@@ -351,6 +438,6 @@ function MyApp({ Component, pageProps }: AppProps) {
       </footer>
     </>
   );
-}
+};
 
 export default MyApp;

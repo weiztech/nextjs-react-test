@@ -1,19 +1,26 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, FormEvent } from "react";
+import { useRouter } from "next/router";
 
-import type { NextPage } from "next";
+type LoginProps = {
+  onSubmit: (data: any) => void;
+};
 
-const Login: NextPage = () => {
-  const nameRef = useRef<HTMLInputElement>(null);
+const Login = (props: LoginProps) => {
+  const router = useRouter();
+  const emailRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
   const [password, setPassword] = useState<string>("");
-  const handleSubmit = () => {
+  console.log("Login Page");
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    console.log(e.preventDefault());
     //prevent page from reloading on submit
     //output the name
-    console.log(nameRef.current?.value, password);
+    const login_data = {
+      email: emailRef.current?.value,
+      password: passwordRef.current?.value,
+    };
+    props.onSubmit(login_data);
   };
-
-  useEffect(() => {
-    console.log("Use Effect");
-  }, []);
 
   console.log("rendering Login component");
 
@@ -29,11 +36,12 @@ const Login: NextPage = () => {
             />
           </div>
           <div className="w-full mt-10 sm:w-9/12 md:w-5/12 lg:w-6/12 md:p-2 lg:p-10">
-            <form>
+            <form onSubmit={handleSubmit}>
               <div className="mb-6 md:mb-3 lg:mb-6">
                 <input
-                  type="text"
-                  ref={nameRef}
+                  required
+                  type="email"
+                  ref={emailRef}
                   defaultValue="test@test.com"
                   className="form-control block w-full px-4 py-2 text-xl font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
                   placeholder="Email address"
@@ -42,15 +50,16 @@ const Login: NextPage = () => {
 
               <div className="mb-6 md:mb-3 lg:mb-6">
                 <input
+                  required
                   type="password"
+                  ref={passwordRef}
                   className="form-control block w-full px-4 py-2 text-xl font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
                   placeholder="Password"
-                  onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
 
               <div className="flex flex-col gap-2 sm:gap-0 sm:flex-row sm:justify-between sm:items-center mb-6 md:mb-3 lg:mb-6">
-                <div className="form-group form-check">
+                {/*<div className="form-group form-check">
                   <input
                     type="checkbox"
                     className="form-check-input appearance-none h-4 w-4 border border-gray-300 rounded-sm bg-white checked:bg-blue-600 checked:border-blue-600 focus:outline-none transition duration-200 mt-1 align-top bg-no-repeat bg-center bg-contain float-left mr-2 cursor-pointer"
@@ -62,7 +71,7 @@ const Login: NextPage = () => {
                   >
                     Remember me
                   </label>
-                </div>
+                </div>*/}
                 <a
                   href="#!"
                   className="text-blue-600 hover:text-blue-700 focus:text-blue-700 active:text-blue-800 duration-200 transition ease-in-out"
@@ -72,11 +81,10 @@ const Login: NextPage = () => {
               </div>
 
               <button
-                type="button"
+                type="submit"
                 className="inline-block px-7 py-3 bg-blue-600 text-white font-medium text-sm leading-snug uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out w-full"
                 data-mdb-ripple="true"
                 data-mdb-ripple-color="light"
-                onClick={handleSubmit}
               >
                 Sign in
               </button>
@@ -132,5 +140,7 @@ const Login: NextPage = () => {
     </section>
   );
 };
+
+Login.isAuthPage = true;
 
 export default Login;

@@ -89,6 +89,11 @@ const columns = [
 ];
 
 export const Table = () => {
+  const datax: { index: number; name: string; description: string } = {
+    index: 1,
+    name: "asdasd",
+    description: "good",
+  };
   const [data, setData] = useState([...defaultData]);
   const rerender = useReducer(() => ({}), {})[1];
 

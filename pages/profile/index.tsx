@@ -332,7 +332,7 @@ type ProfileData = {
   list_address: Address[];
 };
 
-const Profile: NextPage = () => {
+const Profile = () => {
   const additionalData = useRef<AdditionalData>({
     firstName: "Matilda",
     lastName: "",
@@ -444,5 +444,7 @@ const Profile: NextPage = () => {
     </>
   );
 };
+
+Profile.requireAuth = true;
 
 export default Profile;
