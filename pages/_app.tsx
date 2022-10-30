@@ -273,7 +273,10 @@ const MyApp = (appProps: AppProps) => {
                   <a
                     className={
                       "flex flex-row items-center h-12 border-l-4 side-nav " +
-                      (router.route == "/" ? "side-nav-active" : "")
+                      (router.route == "/" ||
+                      router.route.startsWith("/pokemon-ssr")
+                        ? "side-nav-active"
+                        : "")
                     }
                   >
                     <span className="ml-5">
@@ -299,7 +302,9 @@ const MyApp = (appProps: AppProps) => {
                     href="#"
                     className={
                       "flex flex-row items-center h-12 border-l-4 side-nav " +
-                      (router.route == "/pokemon-ssg" ? "side-nav-active" : "")
+                      (router.route.startsWith("/pokemon-ssg")
+                        ? "side-nav-active"
+                        : "")
                     }
                   >
                     <span className="ml-5">
